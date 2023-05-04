@@ -190,9 +190,7 @@ void tg_event_handler_free (event_handler_t* handler) {
 }
 
 string_builder_t* tg_format_eso_event (eso_event_t* event) {
-    char* time = get_format_time("%H:%M");
-    string_builder_t *result = string_builder_printf("%s [%s] ", time, event->game_data.node);
-    free(time);
+    string_builder_t *result = string_builder_printf("[%s] ", event->game_data.node);
 
     string_builder_t* str;
     switch(event->event_type) {
