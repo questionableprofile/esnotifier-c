@@ -20,7 +20,7 @@ typedef struct tg_context {
     char* token;
     telebot_handler_t handle;
     telebot_user_t bot;
-    pthread_t worker;
+    pthread_t* worker;
     volatile int state;
     tg_bot_params_t* bot_params;
 } tg_context_t;
@@ -32,7 +32,7 @@ telebot_error_e tg_free_context (tg_context_t* ctx);
 tg_bot_params_t* init_tg_bot_params();
 void tg_free_bot_params (tg_bot_params_t* params);
 
-pthread_t tg_run_worker (tg_context_t* ctx);
+pthread_t* tg_run_worker (tg_context_t* ctx);
 void tg_pause_worker (tg_context_t* ctx);
 
 void tg_send_message (tg_context_t* ctx, long long int recipient, const char* text, bool silent);

@@ -25,8 +25,6 @@ enum http_parse_error {
 typedef struct request_data request_t;
 typedef struct server_ctx server_ctx_t;
 
-typedef int server_create_error;
-
 typedef void(*request_callback_fun)(server_ctx_t* ctx, request_t*);
 
 typedef struct header {
@@ -72,7 +70,7 @@ typedef struct server_ctx {
     pthread_t worker;
 } server_ctx_t;
 
-server_create_error create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port);
+int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port);
 void stop_server_loop (server_ctx_t* ctx);
 pthread_t run_server (server_ctx_t* ctx);
 void* server_listener (void* ctx);

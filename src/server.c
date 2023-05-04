@@ -13,9 +13,10 @@
 
 #define ERRNO98 "Address already in use"
 
-server_create_error create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port) {
+int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port) {
     int server_sd = -1;
-    struct addrinfo *addrinfo_result, hints;
+    struct addrinfo* addrinfo_result;
+    struct addrinfo hints;
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
@@ -90,7 +91,7 @@ void sig_child_handler (int pid) {
 void* server_listener (void* _ctx) {
     server_ctx_t* ctx = (server_ctx_t*)_ctx;
 //    bool debug = ctx->global_ctx->config->debug;
-    bool debug = &ctx;
+    bool debug = true;
     signal(SIGCHLD, sig_child_handler);
     while(ctx->state == 1) {
         int client_sd = accept(ctx->server_sd, NULL, NULL);
@@ -106,6 +107,10 @@ void* server_listener (void* _ctx) {
         }
         else if (pid > 0);
         else {
+            if (client_sd < 0) {
+                printf("accept() error %d, client %d\n", errno, client_sd);
+                break;
+            }
             serve_client(ctx, client_sd);
             shutdown(client_sd, SHUT_RDWR);
             close(client_sd);

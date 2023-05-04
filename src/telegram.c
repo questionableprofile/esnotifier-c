@@ -8,7 +8,7 @@
 telebot_error_e tg_init_context (global_ctx_t* global_ctx, tg_context_t* ctx, const char* token) {
     ctx->global_ctx = global_ctx;
     ctx->token = strdup(token);
-    ctx->worker = 0;
+    ctx->worker = NULL;
     ctx->state = TG_STATE_INACTIVE;
     ctx->bot_params = init_tg_bot_params();
 
@@ -142,12 +142,12 @@ void tg_pause_worker (tg_context_t* ctx) {
     ctx->state = TG_STATE_PAUSE;
 }
 
-pthread_t tg_run_worker (tg_context_t* ctx) {
-    pthread_t thread;
+pthread_t* tg_run_worker (tg_context_t* ctx) {
+    pthread_t* thread = calloc(1, sizeof(pthread_t));
     ctx->state = TG_STATE_RUN;
-    int result = pthread_create(&thread, NULL, &run, (void*)ctx);
+    int result = pthread_create(thread, NULL, &run, (void*)ctx);
     if (result != 0)
-        return 0;
+        return NULL;
 
     ctx->worker = thread;
 

@@ -84,7 +84,7 @@ int main (int argc, char* argv[]) {
     list_push(global_ctx->event_handlers, file_saver_event_handler_create());
 
     tg_context_t* tg_ctx = NULL;
-    pthread_t telegram_thread = 0;
+    pthread_t* telegram_thread = NULL;
     if (config_get_value(config, "token") != NULL) {
         tg_ctx = MALLOC_STRUCT(tg_context_t);
         telebot_error_e init_result = tg_init_context(global_ctx, tg_ctx, config_get_value(config, "token"));
@@ -95,17 +95,17 @@ int main (int argc, char* argv[]) {
         global_ctx->tg_ctx = tg_ctx;
         list_push(global_ctx->event_handlers, tg_event_handler_create());
         telegram_thread = tg_run_worker(tg_ctx);
-        if (telegram_thread == 0)
+        if (telegram_thread == NULL)
             return 1;
     }
 
     server_ctx_t* server_ctx = MALLOC_STRUCT(server_ctx_t);
-    server_create_error cs_error = create_server(
+    int cs_error = create_server(
             global_ctx,
             server_ctx,
             &request_handler,
             config_get_value(config, "port"));
-    if (cs_error != 0)
+    if (cs_error < 0)
         return 1;
     global_ctx->server_ctx = server_ctx;
 
@@ -126,7 +126,7 @@ int main (int argc, char* argv[]) {
     }
 
     if (tg_ctx != NULL) {
-        pthread_join(telegram_thread, NULL);
+        pthread_join(*telegram_thread, NULL);
         tg_free_context(tg_ctx);
     }
     if (global_ctx->file_saver_ctx != NULL) {
@@ -134,6 +134,8 @@ int main (int argc, char* argv[]) {
     }
     pthread_join(server_thread, NULL);
     command_queue_free(command_queue);
+
+    return 0;
 }
 
 void event_handlers_eso_event (global_ctx_t* ctx, eso_event_t* eso_event) {
