@@ -48,86 +48,86 @@ string_builder_t* eso_command_list_to_json (list_t* command_list) {
 
 
 eso_event_t* eso_event_create () {
-	eso_event_t* event = MALLOC_STRUCT(eso_event_t);
+    eso_event_t* event = MALLOC_STRUCT(eso_event_t);
     event->event_code = NULL;
-	event->event_type = ESO_EVENT_UNEXPECTED;
-	event->data = NULL;
-	event->rc = ref_counter_create();
-	return event;
+    event->event_type = ESO_EVENT_UNEXPECTED;
+    event->data = NULL;
+    event->rc = ref_counter_create();
+    return event;
 }
 
 void eso_event_free (eso_event_t* event) {
-	ref_counter_free(event->rc);
-	free(event);
+    ref_counter_free(event->rc);
+    free(event);
 }
 
 int match_event_name_to_constant (const char* name) {
-	if (STREQUAL(name, ESO_EVENT_NAME_CHAT))
-		return ESO_EVENT_CHAT;
-	else if (STREQUAL(name, ESO_EVENT_NAME_BROADCAST))
-		return ESO_EVENT_BROADCAST;
-	else if (STREQUAL(name, ESO_EVENT_NAME_TRY))
-		return ESO_EVENT_TRY;
-	else if (STREQUAL(name, ESO_EVENT_NAME_ROLL))
-		return ESO_EVENT_ROLL;
-	else if (STREQUAL(name, ESO_EVENT_NAME_DICE))
-		return ESO_EVENT_DICE;
-	else if (STREQUAL(name, ESO_EVENT_NAME_MEDIA_TRACK))
-		return ESO_EVENT_MEDIA_TRACK;
-	else if (STREQUAL(name, ESO_EVENT_NAME_DISCONNECT))
-		return ESO_EVENT_DISCONNECT;
-	else
-		return ESO_EVENT_UNEXPECTED;
+    if (STREQUAL(name, ESO_EVENT_NAME_CHAT))
+        return ESO_EVENT_CHAT;
+    else if (STREQUAL(name, ESO_EVENT_NAME_BROADCAST))
+        return ESO_EVENT_BROADCAST;
+    else if (STREQUAL(name, ESO_EVENT_NAME_TRY))
+        return ESO_EVENT_TRY;
+    else if (STREQUAL(name, ESO_EVENT_NAME_ROLL))
+        return ESO_EVENT_ROLL;
+    else if (STREQUAL(name, ESO_EVENT_NAME_DICE))
+        return ESO_EVENT_DICE;
+    else if (STREQUAL(name, ESO_EVENT_NAME_MEDIA_TRACK))
+        return ESO_EVENT_MEDIA_TRACK;
+    else if (STREQUAL(name, ESO_EVENT_NAME_DISCONNECT))
+        return ESO_EVENT_DISCONNECT;
+    else
+        return ESO_EVENT_UNEXPECTED;
 }
 
 void* eso_parse_chat_event (eso_event_t* event, json_object* event_data) {
-	json_object* message_obj = json_object_object_get(event_data, "message");
-	eso_event_chat_t* chat = MALLOC_STRUCT(eso_event_chat_t);
-	chat->message = strdup(json_object_get_string(message_obj));
-	ref_counter_add(event->rc, chat);
-	ref_counter_add(event->rc, chat->message);
-	return (void*)chat;
+    json_object* message_obj = json_object_object_get(event_data, "message");
+    eso_event_chat_t* chat = MALLOC_STRUCT(eso_event_chat_t);
+    chat->message = strdup(json_object_get_string(message_obj));
+    ref_counter_add(event->rc, chat);
+    ref_counter_add(event->rc, chat->message);
+    return (void*)chat;
 }
 
 void* eso_parse_try_event (eso_event_t* event, json_object* event_data) {
-	json_object* message_obj = json_object_object_get(event_data, "message");
-	json_object* success_obj = json_object_object_get(event_data, "success");
-	eso_event_try_t* try = MALLOC_STRUCT(eso_event_try_t);
-	try->message = strdup(json_object_get_string(message_obj));
-	try->success = json_object_get_boolean(success_obj);
-	ref_counter_add(event->rc, try);
-	ref_counter_add(event->rc, try->message);
-	return (void*)try;
+    json_object* message_obj = json_object_object_get(event_data, "message");
+    json_object* success_obj = json_object_object_get(event_data, "success");
+    eso_event_try_t* try = MALLOC_STRUCT(eso_event_try_t);
+    try->message = strdup(json_object_get_string(message_obj));
+    try->success = json_object_get_boolean(success_obj);
+    ref_counter_add(event->rc, try);
+    ref_counter_add(event->rc, try->message);
+    return (void*)try;
 }
 
 void* eso_parse_broadcast_event (eso_event_t* event, json_object* event_data) {
-	json_object* message_obj = json_object_object_get(event_data, "message");
-	eso_event_broadcast_t* broadcast = MALLOC_STRUCT(eso_event_broadcast_t);
-	broadcast->message = strdup(json_object_get_string(message_obj));
-	ref_counter_add(event->rc, broadcast);
-	ref_counter_add(event->rc, broadcast->message);
-	return (void*)broadcast;
+    json_object* message_obj = json_object_object_get(event_data, "message");
+    eso_event_broadcast_t* broadcast = MALLOC_STRUCT(eso_event_broadcast_t);
+    broadcast->message = strdup(json_object_get_string(message_obj));
+    ref_counter_add(event->rc, broadcast);
+    ref_counter_add(event->rc, broadcast->message);
+    return (void*)broadcast;
 }
 
 void* eso_parse_media_track_event (eso_event_t* event, json_object* event_data) {
     json_object* track_obj = json_object_object_get(event_data, "track");
-	json_object* id_obj = json_object_object_get(track_obj, "id");
-	json_object* type_obj = json_object_object_get(track_obj, "type");
-	eso_media_track_t* track = MALLOC_STRUCT(eso_media_track_t);
+    json_object* id_obj = json_object_object_get(track_obj, "id");
+    json_object* type_obj = json_object_object_get(track_obj, "type");
+    eso_media_track_t* track = MALLOC_STRUCT(eso_media_track_t);
     track->id = strdup(json_object_get_string(id_obj));
     track->type = strdup(json_object_get_string(type_obj));
-	ref_counter_add(event->rc, track);
-	ref_counter_add(event->rc, track->type);
-	ref_counter_add(event->rc, track->id);
-	return (void*)track;
+    ref_counter_add(event->rc, track);
+    ref_counter_add(event->rc, track->type);
+    ref_counter_add(event->rc, track->id);
+    return (void*)track;
 }
 
 void* eso_parse_roll_event (eso_event_t* event, json_object* event_data) {
-	json_object* message_obj = json_object_object_get(event_data, "num");
-	eso_event_roll_t* roll = MALLOC_STRUCT(eso_event_roll_t);
-	roll->num = json_object_get_int(message_obj);
-	ref_counter_add(event->rc, roll);
-	return (void*)roll;
+    json_object* message_obj = json_object_object_get(event_data, "num");
+    eso_event_roll_t* roll = MALLOC_STRUCT(eso_event_roll_t);
+    roll->num = json_object_get_int(message_obj);
+    ref_counter_add(event->rc, roll);
+    return (void*)roll;
 }
 
 void* eso_parse_dice_event (eso_event_t* event, json_object* event_data) {
@@ -150,60 +150,60 @@ void* eso_parse_dice_event (eso_event_t* event, json_object* event_data) {
 
     ref_counter_add(event->rc, dices);
     ref_counter_add(event->rc, dice_list->values);
-	ref_counter_add(event->rc, dice_list);
-	ref_counter_add(event->rc, memory);
-	return (void*)dices;
+    ref_counter_add(event->rc, dice_list);
+    ref_counter_add(event->rc, memory);
+    return (void*)dices;
 }
 
 void* parse_event_data (eso_event_t* event, json_object* event_data) {
-	switch (event->event_type) {
-		case ESO_EVENT_CHAT:
-			return eso_parse_chat_event(event, event_data);
-		case ESO_EVENT_TRY:
-			return eso_parse_try_event(event, event_data);
-		case ESO_EVENT_BROADCAST:
-			return eso_parse_broadcast_event(event, event_data);
-		case ESO_EVENT_MEDIA_TRACK:
-			return eso_parse_media_track_event(event, event_data);
-		case ESO_EVENT_ROLL:
-			return eso_parse_roll_event(event, event_data);
-		case ESO_EVENT_DICE:
-			return eso_parse_dice_event(event, event_data);
-		case ESO_EVENT_DISCONNECT:
-			return NULL;
-	}
-	return NULL;
+    switch (event->event_type) {
+        case ESO_EVENT_CHAT:
+            return eso_parse_chat_event(event, event_data);
+        case ESO_EVENT_TRY:
+            return eso_parse_try_event(event, event_data);
+        case ESO_EVENT_BROADCAST:
+            return eso_parse_broadcast_event(event, event_data);
+        case ESO_EVENT_MEDIA_TRACK:
+            return eso_parse_media_track_event(event, event_data);
+        case ESO_EVENT_ROLL:
+            return eso_parse_roll_event(event, event_data);
+        case ESO_EVENT_DICE:
+            return eso_parse_dice_event(event, event_data);
+        case ESO_EVENT_DISCONNECT:
+            return NULL;
+    }
+    return NULL;
 }
 
 eso_event_t* parse_eso_event (char* text) {
-	json_object *root = json_tokener_parse(text);
-	if (!root)
-		return NULL;
+    json_object *root = json_tokener_parse(text);
+    if (!root)
+        return NULL;
 
-	eso_event_t* event = eso_event_create();
+    eso_event_t* event = eso_event_create();
 
-	json_object* code_obj = json_object_object_get(root, "code");
-	json_object* data_obj = json_object_object_get(root, "data");
-	json_object* game_data_obj = json_object_object_get(data_obj, "gameData");
-	json_object* node_code_obj = json_object_object_get(game_data_obj, "node");
-	json_object* actor_obj = json_object_object_get(data_obj, "actor");
-	json_object* actor_id_obj = json_object_object_get(actor_obj, "id");
-	json_object* actor_name_obj = json_object_object_get(actor_obj, "name");
-	json_object* event_data_obj = json_object_object_get(data_obj, "eventData");
+    json_object* code_obj = json_object_object_get(root, "code");
+    json_object* data_obj = json_object_object_get(root, "data");
+    json_object* game_data_obj = json_object_object_get(data_obj, "gameData");
+    json_object* node_code_obj = json_object_object_get(game_data_obj, "node");
+    json_object* actor_obj = json_object_object_get(data_obj, "actor");
+    json_object* actor_id_obj = json_object_object_get(actor_obj, "id");
+    json_object* actor_name_obj = json_object_object_get(actor_obj, "name");
+    json_object* event_data_obj = json_object_object_get(data_obj, "eventData");
 
     const char* event_code = strdup(json_object_get_string(code_obj));
-	event->event_type = match_event_name_to_constant(event_code);
-	event->actor.id = json_object_get_int(actor_id_obj);
-	event->actor.name = strdup(json_object_get_string(actor_name_obj));
-	event->game_data.node = strdup(json_object_get_string(node_code_obj));
+    event->event_type = match_event_name_to_constant(event_code);
+    event->actor.id = json_object_get_int(actor_id_obj);
+    event->actor.name = strdup(json_object_get_string(actor_name_obj));
+    event->game_data.node = strdup(json_object_get_string(node_code_obj));
 
     ref_counter_add(event->rc, event_code);
-	ref_counter_add(event->rc, event->actor.name);
-	ref_counter_add(event->rc, event->game_data.node);
+    ref_counter_add(event->rc, event->actor.name);
+    ref_counter_add(event->rc, event->game_data.node);
 
-	event->data = parse_event_data(event, event_data_obj);
+    event->data = parse_event_data(event, event_data_obj);
 
-	json_object_put(root);
+    json_object_put(root);
 
-	return event;
+    return event;
 }

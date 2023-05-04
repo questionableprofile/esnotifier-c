@@ -14,68 +14,68 @@
 #define ERRNO98 "Address already in use"
 
 server_create_error create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port) {
-	int server_sd = -1;
-	struct addrinfo *addrinfo_result, hints;
-	hints.ai_family = AF_INET;
+    int server_sd = -1;
+    struct addrinfo *addrinfo_result, hints;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
 
     int addrinfo_res_code = getaddrinfo(NULL, port, &hints, &addrinfo_result);
-	if (addrinfo_res_code != 0) {
-		printf("addrinfo error %d, errno %d\n", addrinfo_res_code, errno);
-		return -1;
-	}
+    if (addrinfo_res_code != 0) {
+        printf("addrinfo error %d, errno %d\n", addrinfo_res_code, errno);
+        return -1;
+    }
 
-	int bind_err = -1;
-	for (struct addrinfo* curaddr = addrinfo_result; curaddr != NULL; curaddr = curaddr->ai_next) {
-		server_sd = socket(curaddr->ai_family, curaddr->ai_socktype, curaddr->ai_protocol);
-		if (server_sd < 0)
-			break;
-		int reuseaddr_val = 1;
-		setsockopt(server_sd, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_val, sizeof(reuseaddr_val));
+    int bind_err = -1;
+    for (struct addrinfo* curaddr = addrinfo_result; curaddr != NULL; curaddr = curaddr->ai_next) {
+        server_sd = socket(curaddr->ai_family, curaddr->ai_socktype, curaddr->ai_protocol);
+        if (server_sd < 0)
+            break;
+        int reuseaddr_val = 1;
+        setsockopt(server_sd, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_val, sizeof(reuseaddr_val));
 
-		struct sockaddr_in* sin = (struct sockaddr_in*) curaddr->ai_addr;
-		printf("binding to %s:%d\n", inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
-		
-		bind_err = bind(server_sd, curaddr->ai_addr, curaddr->ai_addrlen);
-		if (bind_err == 0)
-			break;
-		else
-			close(server_sd);
-	}
-	freeaddrinfo(addrinfo_result);
+        struct sockaddr_in* sin = (struct sockaddr_in*) curaddr->ai_addr;
+        printf("binding to %s:%d\n", inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
 
-	if (bind_err < 0 || server_sd < 0) {
+        bind_err = bind(server_sd, curaddr->ai_addr, curaddr->ai_addrlen);
+        if (bind_err == 0)
+            break;
+        else
+            close(server_sd);
+    }
+    freeaddrinfo(addrinfo_result);
+
+    if (bind_err < 0 || server_sd < 0) {
         char* errname = "";
         if (errno == 98)
             errname = ERRNO98;
-		printf("error binding: %d %s\n", errno, errname);
-		return -2;
-	}
+        printf("error binding: %d %s\n", errno, errname);
+        return -2;
+    }
 
-	if (listen(server_sd, 1000) != 0) {
-		printf("listen() error: %d\n", errno);
-		return -3;
-	}
-	ctx->request_callback = request_callback;
-	ctx->server_sd = server_sd;
-	ctx->state = 0;
+    if (listen(server_sd, 1000) != 0) {
+        printf("listen() error: %d\n", errno);
+        return -3;
+    }
+    ctx->request_callback = request_callback;
+    ctx->server_sd = server_sd;
+    ctx->state = 0;
     ctx->global_ctx = global_ctx;
 
-	return 0;
+    return 0;
 }
 
 void stop_server_loop (server_ctx_t* ctx) {
-	ctx->state = 2;
+    ctx->state = 2;
 }
 
 pthread_t run_server (server_ctx_t* ctx) {
-	pthread_t thread;
-	ctx->state = 1;
+    pthread_t thread;
+    ctx->state = 1;
     int result = pthread_create(&thread, NULL, &server_listener, (void*)ctx);
     if (result != 0) {
-    	ctx->state = 0;
+        ctx->state = 0;
         return 0;
     }
     ctx->worker = thread;
@@ -88,17 +88,17 @@ void sig_child_handler (int pid) {
 }
 
 void* server_listener (void* _ctx) {
-	server_ctx_t* ctx = (server_ctx_t*)_ctx;
+    server_ctx_t* ctx = (server_ctx_t*)_ctx;
 //    bool debug = ctx->global_ctx->config->debug;
     bool debug = &ctx;
     signal(SIGCHLD, sig_child_handler);
-	while(ctx->state == 1) {
-		int client_sd = accept(ctx->server_sd, NULL, NULL);
+    while(ctx->state == 1) {
+        int client_sd = accept(ctx->server_sd, NULL, NULL);
         int pid;
         if (!debug)
             pid = fork();
         else
-		    pid = 0;
+            pid = 0;
         if (pid < 0) {
             printf("couldn't create process\n");
             shutdown(client_sd, SHUT_RDWR);
@@ -106,7 +106,7 @@ void* server_listener (void* _ctx) {
         }
         else if (pid > 0);
         else {
-			serve_client(ctx, client_sd);
+            serve_client(ctx, client_sd);
             shutdown(client_sd, SHUT_RDWR);
             close(client_sd);
             if (!debug) {
@@ -115,12 +115,12 @@ void* server_listener (void* _ctx) {
                 close(STDOUT_FILENO);
                 exit(0);
             }
-		}
+        }
 
-	}
-	close(ctx->server_sd);
-	free(ctx);
-	return NULL;
+    }
+    close(ctx->server_sd);
+    free(ctx);
+    return NULL;
 }
 
 void serve_client (server_ctx_t* ctx, int client_sd) {
@@ -298,8 +298,8 @@ enum http_parse_error parse_request (request_t* req, char* buf, size_t buf_len) 
 }
 
 request_t* create_request () {
-	request_t* req = MALLOC_STRUCT(request_t);
-	req->conn.client_sd = -1;
+    request_t* req = MALLOC_STRUCT(request_t);
+    req->conn.client_sd = -1;
 
     req->p.buf_pos = 0;
     req->p.word_pos = 0;
@@ -313,34 +313,34 @@ request_t* create_request () {
     req->misc.content_length = 0;
 
     req->method = HTTP_METHOD_UNSET;
-	req->method_name = NULL;
-	req->uri = NULL;
-	req->http_version = NULL;
-	req->body = NULL;
+    req->method_name = NULL;
+    req->uri = NULL;
+    req->http_version = NULL;
+    req->body = NULL;
     req->body_length = 0;
-	return req;
+    return req;
 }
 
 header_t* create_header () {
-	header_t* header = MALLOC_STRUCT(header_t);
-	header->name = NULL;
-	header->value = NULL;
-	header->next = NULL;
-	return header;
+    header_t* header = MALLOC_STRUCT(header_t);
+    header->name = NULL;
+    header->value = NULL;
+    header->next = NULL;
+    return header;
 }
 
 void free_request (request_t* req) {
-	FREE_IF_NOTNULL(req, method_name);
-	FREE_IF_NOTNULL(req, uri);
-	FREE_IF_NOTNULL(req, http_version);
-	FREE_IF_NOTNULL(req, body);
-	header_t* next = req->header;
-	while (next != NULL) {
-		header_t* current = next;
-		next = current->next;
-		free(current);
-	}
-	free(req);
+    FREE_IF_NOTNULL(req, method_name);
+    FREE_IF_NOTNULL(req, uri);
+    FREE_IF_NOTNULL(req, http_version);
+    FREE_IF_NOTNULL(req, body);
+    header_t* next = req->header;
+    while (next != NULL) {
+        header_t* current = next;
+        next = current->next;
+        free(current);
+    }
+    free(req);
 }
 
 int match_method_name (char* method_name) {

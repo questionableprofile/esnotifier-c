@@ -10,20 +10,20 @@ typedef struct string_builder string_builder_t;
 #define LIST_DEFAULT_SIZE 10
 
 typedef struct ref_counter {
-	list_t* ref_list;
+    list_t* ref_list;
 } ref_counter_t;
 
 typedef struct list {
-	char* values;
-	size_t size;
-	size_t value_size;
-	size_t length;
+    char* values;
+    size_t size;
+    size_t value_size;
+    size_t length;
 } list_t;
 
 typedef struct string_builder {
-	char* value;
-	char* value_null;
-	size_t length;
+    char* value;
+    char* value_null;
+    size_t length;
     size_t size;
 } string_builder_t;
 

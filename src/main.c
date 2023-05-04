@@ -15,8 +15,8 @@ const char commands_uri[] = "/commands";
 const char event_uri[] = "/event";
 
 void request_handler (server_ctx_t* ctx, request_t* request) {
-	string_builder_t* string = string_builder_create(4096);
-	string_builder_t* response = NULL;
+    string_builder_t* string = string_builder_create(4096);
+    string_builder_t* response = NULL;
     /*if (request->body != NULL)
         printf("%s\n", request->body);*/
     if (STREQUAL(request->method_name, "POST") && request->body == NULL) {
@@ -24,13 +24,13 @@ void request_handler (server_ctx_t* ctx, request_t* request) {
         http_respond_text(string, string_builder_copy("no body"), HTTP_CONTENT_PLAIN);
     }
     else if (strcmp(request->method_name, "OPTIONS") == 0)
-		http_respond_options(string, "GET, POST, OPTIONS");
+        http_respond_options(string, "GET, POST, OPTIONS");
     else if (request->method == HTTP_METHOD_GET && strncmp(request->uri, commands_uri, sizeof(commands_uri)) == 0) {
         list_t* commands = command_queue_retrieve(ctx->global_ctx->command_queue);
         response = eso_command_list_to_json(commands);
         eso_command_list_free(commands);
-		http_respond_text(string, response, HTTP_CONTENT_PLAIN);
-	}
+        http_respond_text(string, response, HTTP_CONTENT_PLAIN);
+    }
     else if (request->method == HTTP_METHOD_POST && strncmp(request->uri, event_uri, sizeof(event_uri)) == 0) {
         if (request->body == NULL) {
             response = string_builder_copy("empty body");
@@ -38,24 +38,24 @@ void request_handler (server_ctx_t* ctx, request_t* request) {
             goto exit;
         }
         eso_event_t* event = parse_eso_event(request->body);
-		if (event == NULL) {
+        if (event == NULL) {
             printf("body: \"%s\"\n", request->body);
             response = string_builder_copy("failed to to parse event");
         }
-		else {
+        else {
             event_handlers_eso_event(ctx->global_ctx, event);
             eso_event_free(event);
             response = string_builder_copy("done 👍");
         }
-		http_respond_text(string, response, HTTP_CONTENT_PLAIN);
-	}
+        http_respond_text(string, response, HTTP_CONTENT_PLAIN);
+    }
     else
-		http_not_found(string);
+        http_not_found(string);
     exit:
-	send(request->conn.client_sd, string->value, string->value_null - string->value, 0);
-	if (response != NULL)
-		string_builder_free(response);
-	string_builder_free(string);
+    send(request->conn.client_sd, string->value, string->value_null - string->value, 0);
+    if (response != NULL)
+        string_builder_free(response);
+    string_builder_free(string);
 }
 
 int main (int argc, char* argv[]) {
@@ -106,16 +106,16 @@ int main (int argc, char* argv[]) {
             &request_handler,
             config_get_value(config, "port"));
     if (cs_error != 0)
-		return 1;
+        return 1;
     global_ctx->server_ctx = server_ctx;
 
-	pthread_t server_thread = run_server(server_ctx);
-	if (server_thread == 0)
-		return 1;
+    pthread_t server_thread = run_server(server_ctx);
+    if (server_thread == 0)
+        return 1;
 
-	char input;
-	while (true) {
-		scanf("%c", &input);
+    char input;
+    while (true) {
+        scanf("%c", &input);
         if (input == 'e') {
             printf("shutting down\n");
             if (tg_ctx != NULL)
@@ -123,7 +123,7 @@ int main (int argc, char* argv[]) {
             stop_server_loop(server_ctx);
             break;
         }
-	}
+    }
 
     if (tg_ctx != NULL) {
         pthread_join(telegram_thread, NULL);

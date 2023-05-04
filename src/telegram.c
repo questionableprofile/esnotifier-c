@@ -8,24 +8,24 @@
 telebot_error_e tg_init_context (global_ctx_t* global_ctx, tg_context_t* ctx, const char* token) {
     ctx->global_ctx = global_ctx;
     ctx->token = strdup(token);
-	ctx->worker = 0;
+    ctx->worker = 0;
     ctx->state = TG_STATE_INACTIVE;
     ctx->bot_params = init_tg_bot_params();
 
-	int result;
-	if ((result = telebot_create(&ctx->handle, ctx->token)) != TELEBOT_ERROR_NONE) {
-		printf("error creating telebot handle %d\n", result);
+    int result;
+    if ((result = telebot_create(&ctx->handle, ctx->token)) != TELEBOT_ERROR_NONE) {
+        printf("error creating telebot handle %d\n", result);
         free(ctx->token);
         tg_free_bot_params(ctx->bot_params);
-		return result;
-	}
+        return result;
+    }
 
-	if ((result = telebot_get_me(ctx->handle, &ctx->bot)) != TELEBOT_ERROR_NONE) {
-		printf("error getting bot information\n");
+    if ((result = telebot_get_me(ctx->handle, &ctx->bot)) != TELEBOT_ERROR_NONE) {
+        printf("error getting bot information\n");
         free(ctx->token);
         tg_free_bot_params(ctx->bot_params);
-		return result;
-	}
+        return result;
+    }
 
     const char* owner_str = config_get_value(global_ctx->config, "owner");
     if (owner_str == NULL)

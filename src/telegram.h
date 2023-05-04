@@ -12,17 +12,17 @@
 
 typedef struct tg_bot_params {
     long long int owner;
-	bool chat_mod_enabled;
+    bool chat_mod_enabled;
 } tg_bot_params_t;
 
 typedef struct tg_context {
     global_ctx_t* global_ctx;
-	char* token;
-	telebot_handler_t handle;
-	telebot_user_t bot;
-	pthread_t worker;
-	volatile int state;
-	tg_bot_params_t* bot_params;
+    char* token;
+    telebot_handler_t handle;
+    telebot_user_t bot;
+    pthread_t worker;
+    volatile int state;
+    tg_bot_params_t* bot_params;
 } tg_context_t;
 
 void process_update (tg_context_t* ctx, telebot_update_t* update);

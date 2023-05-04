@@ -30,9 +30,9 @@ typedef int server_create_error;
 typedef void(*request_callback_fun)(server_ctx_t* ctx, request_t*);
 
 typedef struct header {
-	char* name;
-	char* value;
-	struct header* next;
+    char* name;
+    char* value;
+    struct header* next;
 } header_t;
 
 struct parser {
@@ -56,20 +56,20 @@ typedef struct request_data {
     } misc;
     struct parser p;
     int method;
-	char* method_name;
-	char* uri;
-	char* http_version;
-	char* body;
+    char* method_name;
+    char* uri;
+    char* http_version;
+    char* body;
     size_t body_length;
-	header_t* header;
+    header_t* header;
 } request_t;
 
 typedef struct server_ctx {
     global_ctx_t* global_ctx;
-	int server_sd;
-	int state;
-	request_callback_fun request_callback;
-	pthread_t worker;
+    int server_sd;
+    int state;
+    request_callback_fun request_callback;
+    pthread_t worker;
 } server_ctx_t;
 
 server_create_error create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port);
