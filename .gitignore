@@ -1,0 +1,11 @@
+.idea
+cmake-build*
+config.txt
+CMakeFiles
+CMakeCache.txt
+notifier
+Makefile
+cmake_install.cmake
+build
+log.txt
+logs/
