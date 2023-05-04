@@ -111,12 +111,10 @@ config_t* config_read (const char* file_name) {
     int read_res = read_file(file, string_builder_as_cstring(path));
     if (read_res < 0) {
         printf("Cannot read config file \"%s\", err %d, errno %d\n", string_builder_as_cstring(path), read_res, errno);
-        list_free(config->list);
-        free(file);
-        free(config);
-        return NULL;
     }
-    config_parse(file->data, file->length, config->list);
+    else {
+        config_parse(file->data, file->length, config->list);
+    }
 
     return config;
 }
