@@ -59,6 +59,7 @@ void file_saver_handle_event (global_ctx_t* ctx, eso_event_t* eso_event) {
     string_builder_t* eso_format = tg_format_eso_event(eso_event);
     string_builder_t* formatted = string_builder_printf("%s %s", time, string_builder_as_cstring(eso_format));
     string_builder_append(formatted, "\n");
+    free(time);
 
     size_t wrote_bytes = fwrite(string_builder_as_cstring(formatted), sizeof(char), string_builder_size(formatted), file);
     int fd = fileno(file);

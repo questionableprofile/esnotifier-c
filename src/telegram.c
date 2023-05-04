@@ -174,9 +174,11 @@ void print_bot_info (const tg_context_t* ctx) {
 
 void tg_handle_event (global_ctx_t* ctx, eso_event_t* eso_event) {
     string_builder_t* formatted = tg_format_eso_event(eso_event);
-    printf("%s\n", string_builder_as_cstring(formatted));
+    char* time = get_format_time("%H:%M");
+    printf("%s %s\n", time, string_builder_as_cstring(formatted));
     tg_send_owner(ctx->tg_ctx, string_builder_as_cstring(formatted), true);
     string_builder_free(formatted);
+    free(time);
 }
 
 event_handler_t* tg_event_handler_create () {
