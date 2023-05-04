@@ -38,8 +38,6 @@ int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback
 
         struct sockaddr_in* sin = (struct sockaddr_in*) curaddr->ai_addr;
         printf("binding to %s:%d\n", inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
-        close(server_sd);
-        continue;
 
         bind_err = bind(server_sd, curaddr->ai_addr, curaddr->ai_addrlen);
         if (bind_err == 0)
