@@ -70,7 +70,7 @@ typedef struct server_ctx {
     pthread_t worker;
 } server_ctx_t;
 
-int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port);
+int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun req_callback, const char* ip, const char* port);
 void stop_server_loop (server_ctx_t* ctx);
 pthread_t run_server (server_ctx_t* ctx);
 void* server_listener (void* ctx);

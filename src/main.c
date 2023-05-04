@@ -67,6 +67,8 @@ int main (int argc, char* argv[]) {
 
     if (config_get_value(config, "port") == NULL)
         config_set_value(config, "port", "9673");
+    if (config_get_value(config, "ip") == NULL)
+        config_set_value(config, "ip", "0.0.0.0");
     config->debug = config_get_value(config, "debug") != NULL ? true : false;
 
     global_ctx_t* global_ctx = MALLOC_STRUCT(global_ctx_t);
@@ -104,6 +106,7 @@ int main (int argc, char* argv[]) {
             global_ctx,
             server_ctx,
             &request_handler,
+            config_get_value(config, "ip"),
             config_get_value(config, "port"));
     if (cs_error < 0)
         return 1;

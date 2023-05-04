@@ -12,8 +12,9 @@
 #include "config.h"
 
 #define ERRNO98 "Address already in use"
+#define ERRNO99 "Address not available"
 
-int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun request_callback, const char* port) {
+int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback_fun req_callback, const char* ip, const char* port) {
     int server_sd = -1;
     struct addrinfo* addrinfo_result;
     struct addrinfo hints;
@@ -22,13 +23,14 @@ int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
 
-    int addrinfo_res_code = getaddrinfo(NULL, port, &hints, &addrinfo_result);
+
+    int addrinfo_res_code = getaddrinfo(ip, port, &hints, &addrinfo_result);
     if (addrinfo_res_code != 0) {
         printf("addrinfo error %d, errno %d\n", addrinfo_res_code, errno);
         return -1;
     }
 
-    int bind_err = -1;
+    int bind_err = -1, bind_errno;
     for (struct addrinfo* curaddr = addrinfo_result; curaddr != NULL; curaddr = curaddr->ai_next) {
         server_sd = socket(curaddr->ai_family, curaddr->ai_socktype, curaddr->ai_protocol);
         if (server_sd < 0)
@@ -40,6 +42,7 @@ int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback
         printf("binding to %s:%d\n", inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
 
         bind_err = bind(server_sd, curaddr->ai_addr, curaddr->ai_addrlen);
+        bind_errno = errno;
         if (bind_err == 0)
             break;
         else
@@ -51,7 +54,9 @@ int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback
         char* errname = "";
         if (errno == 98)
             errname = ERRNO98;
-        printf("error binding: %d %s\n", errno, errname);
+        else if (errno == 99)
+            errname = ERRNO99;
+        printf("error binding: %d %s\n", bind_errno, errname);
         return -2;
     }
 
@@ -59,7 +64,7 @@ int create_server (global_ctx_t* global_ctx, server_ctx_t *ctx, request_callback
         printf("listen() error: %d\n", errno);
         return -3;
     }
-    ctx->request_callback = request_callback;
+    ctx->request_callback = req_callback;
     ctx->server_sd = server_sd;
     ctx->state = 0;
     ctx->global_ctx = global_ctx;
