@@ -13,7 +13,8 @@ add_executable(notifier
         src/config.c
         src/file-saver.c
 )
-set_property(TARGET notifier PROPERTY C_STANDARD 17)
+set_property(TARGET notifier PROPERTY C_STANDARD 11)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 include(FindPkgConfig)
 pkg_check_modules(telebot REQUIRED IMPORTED_TARGET telebot)
